@@ -4,7 +4,7 @@
 ***
 # How it works
 
-Click the generate button. Ignore noise, meant to be part of video and not site but you fix that yourself
+Click the generate button.
 The text in this video works like this:
 1. First text is an adjective to describe product
 2. Second text is the price of the product
