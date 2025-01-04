@@ -180,7 +180,8 @@
           ctx.fillText(platform, 320, 460);
 
           recorder.requestData();
-          progressBar.style.width = `${((i + 1) / duration) * 100}%`;
+          const progress = ((i + 1) / duration) * 100;
+          progressBar.style.width = `${progress}%`;
           resolve();
         };
       });
