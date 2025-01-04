@@ -1,70 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>adMAKER</title>
-  <style>
-    body {
-      background: #111;
-      color: white;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
+<html><head><base href="." />
+<title>adMAKER</title>
+<style>
+  body {
+    background: #111;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
 
-    .container {
-      max-width: 800px;
-      text-align: center;
-    }
+  .container {
+    max-width: 800px;
+    text-align: center;
+  }
 
-    #videoPlayer {
-      display: none;
-      margin: 20px 0;
-      max-width: 100%;
-    }
+  #videoPlayer {
+    display: none;
+    margin: 20px 0;
+    max-width: 100%;
+  }
 
-    button {
-      background: #2196F3;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      font-size: 18px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin: 20px auto;
-    }
+  button {
+    background: #2196F3;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: block;
+    margin: 20px auto;
+  }
 
-    button:hover {
-      background: #1976D2;
-      transform: scale(1.05);
-    }
+  button:hover {
+    background: #1976D2;
+    transform: scale(1.05);
+  }
 
-    .progress {
-      width: 100%;
-      max-width: 640px;
-      background: #333;
-      border-radius: 4px;
-      margin: 20px 0;
-      height: 20px;
-      overflow: hidden;
-    }
+  .progress {
+    width: 100%;
+    max-width: 640px;
+    background: #333;
+    border-radius: 4px;
+    margin: 20px 0;
+    height: 20px;
+    overflow: hidden;
+  }
 
-    .progress-bar {
-      width: 0%;
-      height: 100%;
-      background: #2196F3;
-      transition: width 0.3s;
-    }
+  .progress-bar {
+    width: 0%;
+    height: 100%;
+    background: #2196F3;
+    transition: width 0.3s;
+  }
 
-    .status {
-      margin: 10px 0;
-      font-size: 16px;
-    }
-  </style>
+  .status {
+    margin: 10px 0;
+    font-size: 16px;
+  }
+</style>
 </head>
 <body>
 <div class="container">
@@ -74,130 +71,173 @@
     <div id="progressBar" class="progress-bar"></div>
   </div>
   <div id="status" class="status">Ready to generate</div>
-  <button id="generateBtn" onclick="generateVideo()">Generate New Ad</button>
-  <video id="videoPlayer" controls></video>
-  <button id="saveBtn" style="display:none;" onclick="saveVideo()">Save as MP4</button>
+  <div>
+    <button id="generateBtn" onclick="generateVideo()">Generate New Ad</button>
+  </div>
+  <video id="videoPlayer" controls>
+    Your browser doesn't support HTML5 video.
+  </video>
 </div>
 
 <script>
-  const adjectives = [
-    { word: "REVOLUTIONARY", theme: "technology" },
-    { word: "SUSPICIOUS", theme: "mystery" },
-    { word: "GROUNDBREAKING", theme: "science" },
-    { word: "SKETCHY", theme: "urban" },
-    { word: "LIFE-CHANGING", theme: "nature" }
+const productAdjectives = [
+  "REVOLUTIONARY",
+  "QUESTIONABLE",
+  "LIFE-CHANGING",
+  "SUSPICIOUS",
+  "GROUNDBREAKING",
+  "POSSIBLY ILLEGAL",
+  "MIND-BLOWING",
+  "CONCERNING",
+  "GAME-CHANGING",
+  "SKETCHY"
+];
+
+const prices = [  
+  "£999.99/month",  
+  "£4999.95/year",  
+  "£199.99/week",  
+  "£10,000/month",  
+  "£799.99/month",  
+  "£250,000/year",  
+  "£599.99/day",  
+  "£1,499.99/hour",  
+  "£69,420/year",  
+  "£10,000,000/month",  
+  "£0.01/year",  
+  "£0.99/lifetime",  
+  "£1.49/month",  
+  "£3.00/year",  
+  "£4.20/decade",  
+  "£0.10/month",  
+  "£2.22/year",  
+  "£0.50/lifetime",  
+  "£1.11/month",  
+  "£6.66/year"  
+];
+
+const pronounChoices = [
+  "he/him",
+  "she/her",
+  "they/them",
+  "he/them",
+  "she/then",
+];
+
+const platforms = [
+  "bluesky",
+  "myspace",
+  "x formerly twittah",
+  "mastodon",
+  "reddat",
+  "tiktok",
+  "linkedin",
+  "facebook",
+  "instant grandma",
+];
+
+function getRandomFrom(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+async function generateProductName() {
+  const consonants = 'bcdfghjklmnpqrstvwxz';
+  const vowels = 'aeiou';
+  const length = Math.floor(Math.random() * 5) + 5;
+  let name = '';
+  for(let i = 0; i < length; i++) {
+    if(Math.random() > 0.5) {
+      name += consonants[Math.floor(Math.random() * consonants.length)].toUpperCase();
+    } else {
+      name += vowels[Math.floor(Math.random() * vowels.length)].toUpperCase();
+    }
+  }
+  return name;
+}
+
+async function getRandomImage() {
+  const width = 640;
+  const height = 480;
+  return `https://picsum.photos/${width}/${height}?random=${Math.random()}`;
+}
+
+async function generateVideo() {
+  const generateBtn = document.getElementById('generateBtn');
+  generateBtn.style.display = 'none';
+  
+  const status = document.getElementById('status');
+  const progressBar = document.getElementById('progressBar');
+  const videoPlayer = document.getElementById('videoPlayer');
+  videoPlayer.style.display = 'none';
+  
+  status.textContent = 'Generating video...';
+  progressBar.style.width = '0%';
+
+  const fps = 1;
+  const frames = [
+    { text: getRandomFrom(productAdjectives) },
+    { text: getRandomFrom(prices) },
+    { text: getRandomFrom(pronounChoices) },
+    { text: getRandomFrom(platforms) },
+    { text: await generateProductName() }
   ];
 
-  const prices = [
-    "£999.99/month",
-    "£199.99/week",
-    "£10,000/month",
-    "£69,420/year",
-    "£0.99/lifetime"
-  ];
+  for (let i = 0; i < frames.length; i++) {
+    status.textContent = `Fetching frame ${i + 1}/${frames.length}...`;
+    progressBar.style.width = `${(i / frames.length) * 50}%`;
+    frames[i].url = await getRandomImage();
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
 
-  const platforms = [
-    "bluesky",
-    "myspace",
-    "x formerly twittah",
-    "mastodon",
-    "tiktok"
-  ];
+  status.textContent = 'Creating video...';
+  progressBar.style.width = '90%';
 
-  const themes = {
-    technology: "https://source.unsplash.com/640x480/?technology",
-    mystery: "https://source.unsplash.com/640x480/?dark",
-    science: "https://source.unsplash.com/640x480/?science",
-    urban: "https://source.unsplash.com/640x480/?city",
-    nature: "https://source.unsplash.com/640x480/?nature"
+  const canvas = document.createElement('canvas');
+  canvas.width = 640;
+  canvas.height = 480;
+  const ctx = canvas.getContext('2d');
+  
+  const videoStream = canvas.captureStream(fps);
+  
+  const chunks = [];
+  const mediaRecorder = new MediaRecorder(videoStream, {
+    mimeType: 'video/webm;codecs=vp8'
+  });
+
+  mediaRecorder.ondataavailable = e => chunks.push(e.data);
+  mediaRecorder.onstop = async () => {
+    const blob = new Blob(chunks, { type: 'video/webm' });
+    videoPlayer.src = URL.createObjectURL(blob);
+    videoPlayer.style.display = 'block';
+    status.textContent = 'Video ready!';
+    progressBar.style.width = '100%';
+    generateBtn.style.display = 'block';
   };
 
-  let videoBlob;
+  mediaRecorder.start();
 
-  function getRandomFrom(array) {
-    return array[Math.floor(Math.random() * array.length)];
-  }
-
-  async function generateVideo() {
-    const generateBtn = document.getElementById('generateBtn');
-    const status = document.getElementById('status');
-    const progressBar = document.getElementById('progressBar');
-    const videoPlayer = document.getElementById('videoPlayer');
-    const saveBtn = document.getElementById('saveBtn');
-
-    generateBtn.style.display = 'none';
-    saveBtn.style.display = 'none';
-    videoPlayer.style.display = 'none';
-    status.textContent = 'Generating video...';
-    progressBar.style.width = '0%';
-
-    const fps = 1;
-    const duration = 10;
-    const frames = [];
-    const ctx = document.createElement('canvas').getContext('2d');
-    ctx.canvas.width = 640;
-    ctx.canvas.height = 480;
-
-    const chunks = [];
-    const stream = ctx.canvas.captureStream(fps);
-    const recorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
-
-    recorder.ondataavailable = e => chunks.push(e.data);
-    recorder.onstop = () => {
-      videoBlob = new Blob(chunks, { type: 'video/webm' });
-      videoPlayer.src = URL.createObjectURL(videoBlob);
-      videoPlayer.style.display = 'block';
-      saveBtn.style.display = 'block';
-      status.textContent = 'Video ready!';
-      progressBar.style.width = '100%';
-      generateBtn.style.display = 'block';
-    };
-
-    recorder.start();
-
-    for (let i = 0; i < duration; i++) {
-      const adjective = getRandomFrom(adjectives);
-      const price = getRandomFrom(prices);
-      const platform = getRandomFrom(platforms);
-      const themeUrl = themes[adjective.theme] + `&random=${Math.random()}`;
-
-      const img = new Image();
-      img.src = themeUrl;
-
-      await new Promise(resolve => {
-        img.onload = () => {
-          ctx.drawImage(img, 0, 0, 640, 480);
-
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-          ctx.fillRect(0, 380, 640, 100);
-
-          ctx.fillStyle = 'white';
-          ctx.font = 'bold 28px Arial';
-          ctx.textAlign = 'center';
-
-          ctx.fillText(adjective.word, 320, 400);
-          ctx.fillText(price, 320, 430);
-          ctx.fillText(platform, 320, 460);
-
-          recorder.requestData();
-          const progress = ((i + 1) / duration) * 100;
-          progressBar.style.width = `${progress}%`;
-          resolve();
-        };
-      });
-
-      await new Promise(resolve => setTimeout(resolve, 1000 / fps));
+  let frameIndex = 0;
+  const drawNextFrame = async () => {
+    if (frameIndex >= frames.length) {
+      mediaRecorder.stop();
+      return;
     }
 
-    recorder.stop();
-  }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 48px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(frames[frameIndex].text, canvas.width/2, canvas.height/2);
+      frameIndex++;
+      setTimeout(drawNextFrame, 1000 / fps);
+    };
+    img.src = frames[frameIndex].url;
+  };
 
-  function saveVideo() {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(videoBlob);
-    a.download = 'adMAKER.mp4';
-    a.click();
-  }
+  drawNextFrame();
+}
 </script>
-</body>
-</html>
+</body></html>
