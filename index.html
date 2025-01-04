@@ -173,9 +173,7 @@ async function generateVideo() {
   status.textContent = 'Generating video...';
   progressBar.style.width = '0%';
 
-  const duration = 10;
   const fps = 1;
-  const totalFrames = duration * fps;
   const frames = [
     { text: getRandomFrom(productAdjectives) },
     { text: getRandomFrom(prices) },
@@ -185,20 +183,12 @@ async function generateVideo() {
   ];
 
   for (let i = 0; i < frames.length; i++) {
-    status.textContent = `Fetching frame ${i + 1}/${totalFrames}...`;
-    progressBar.style.width = `${(i / totalFrames) * 50}%`;
+    status.textContent = `Fetching frame ${i + 1}/${frames.length}...`;
+    progressBar.style.width = `${(i / frames.length) * 50}%`;
     frames[i].url = await getRandomImage();
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 
-  status.textContent = 'Generating audio...';
-  progressBar.style.width = '75%';
-  
-  const randomAudioBuffer = generateRandomAudio();
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  const audioSource = audioContext.createBufferSource();
-  audioSource.buffer = randomAudioBuffer;
-  
   status.textContent = 'Creating video...';
   progressBar.style.width = '90%';
 
@@ -210,11 +200,8 @@ async function generateVideo() {
   const videoStream = canvas.captureStream(fps);
   
   const chunks = [];
-  const mediaRecorder = new MediaRecorder(new MediaStream([
-    ...videoStream.getVideoTracks(),
-    audioContext.createMediaStreamDestination().stream.getAudioTracks()[0]
-  ]), {
-    mimeType: 'video/webm;codecs=vp8,opus'
+  const mediaRecorder = new MediaRecorder(videoStream, {
+    mimeType: 'video/webm;codecs=vp8'
   });
 
   mediaRecorder.ondataavailable = e => chunks.push(e.data);
@@ -228,8 +215,6 @@ async function generateVideo() {
   };
 
   mediaRecorder.start();
-  audioSource.connect(audioContext.destination);
-  audioSource.start();
 
   let frameIndex = 0;
   const drawNextFrame = async () => {
@@ -242,16 +227,10 @@ async function generateVideo() {
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-      ctx.fillRect(0, canvas.height/2 - 50, canvas.width, 100);
-      
       ctx.fillStyle = 'white';
       ctx.font = 'bold 48px Arial';
       ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
       ctx.fillText(frames[frameIndex].text, canvas.width/2, canvas.height/2);
-      
       frameIndex++;
       setTimeout(drawNextFrame, 1000 / fps);
     };
