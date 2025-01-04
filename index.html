@@ -136,37 +136,6 @@ const platforms = [
   "instant grandma",
 ];
 
-function generateRandomAudio() {
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  const duration = 10;
-  const sampleRate = audioContext.sampleRate;
-  const bufferSize = sampleRate * duration;
-  const audioBuffer = audioContext.createBuffer(1, bufferSize, sampleRate);
-  const channelData = audioBuffer.getChannelData(0);
-
-  let baseFrequency = Math.random() * 500 + 100; // Start at a random frequency
-  let baseAmplitude = Math.random() * 0.5 + 0.5; // Start at a random amplitude
-  
-  for (let i = 0; i < bufferSize; i++) {
-    // Smoothly slide frequency and amplitude
-    baseFrequency += (Math.random() * 10 - 5); // Slight random variation
-    baseAmplitude += (Math.random() * 0.1 - 0.05); // Slight amplitude variation
-    
-    // Clamp frequency and amplitude to reasonable ranges
-    baseFrequency = Math.max(20, Math.min(2000, baseFrequency));
-    baseAmplitude = Math.max(0, Math.min(1, baseAmplitude));
-    
-    // Generate saw wave
-    const t = i / sampleRate;
-    const sawWave = 2 * (baseFrequency * t - Math.floor(0.5 + baseFrequency * t)) - 1;
-    
-    // Apply amplitude
-    channelData[i] = sawWave * baseAmplitude;
-  }
-
-  return audioBuffer;
-}
-
 function getRandomFrom(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
