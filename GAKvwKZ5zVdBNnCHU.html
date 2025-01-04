@@ -1,0 +1,295 @@
+<html><head><base href="." />
+<title>Internet Advert Maker</title>
+<style>
+  body {
+    background: #111;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 800px;
+    text-align: center;
+  }
+
+  #videoPlayer {
+    display: none;
+    margin: 20px 0;
+    max-width: 100%;
+  }
+
+  button {
+    background: #2196F3;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: block;
+    margin: 20px auto;
+  }
+
+  button:hover {
+    background: #1976D2;
+    transform: scale(1.05);
+  }
+
+  .progress {
+    width: 100%;
+    max-width: 640px;
+    background: #333;
+    border-radius: 4px;
+    margin: 20px 0;
+    height: 20px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    width: 0%;
+    height: 100%;
+    background: #2196F3;
+    transition: width 0.3s;
+  }
+
+  .status {
+    margin: 10px 0;
+    font-size: 16px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Internet Advert Maker</h1>
+  <p>Click the button to generate a 10-second random advertisement video!</p>
+  <div class="progress">
+    <div id="progressBar" class="progress-bar"></div>
+  </div>
+  <div id="status" class="status">Ready to generate</div>
+  <div>
+    <button id="generateBtn" onclick="generateVideo()">Generate New Ad</button>
+  </div>
+  <video id="videoPlayer" controls>
+    Your browser doesn't support HTML5 video.
+  </video>
+</div>
+
+<script>
+const productAdjectives = [
+  "REVOLUTIONARY",
+  "QUESTIONABLE",
+  "LIFE-CHANGING",
+  "SUSPICIOUS",
+  "GROUNDBREAKING",
+  "POSSIBLY ILLEGAL",
+  "MIND-BLOWING",
+  "CONCERNING",
+  "GAME-CHANGING",
+  "SKETCHY"
+];
+
+const prices = [  
+  "£999.99/month",  
+  "£4999.95/year",  
+  "£199.99/week",  
+  "£10,000/month",  
+  "£799.99/month",  
+  "£250,000/year",  
+  "£599.99/day",  
+  "£1,499.99/hour",  
+  "£69,420/year",  
+  "£10,000,000/month",  
+  "£0.01/year",  
+  "£0.99/lifetime",  
+  "£1.49/month",  
+  "£3.00/year",  
+  "£4.20/decade",  
+  "£0.10/month",  
+  "£2.22/year",  
+  "£0.50/lifetime",  
+  "£1.11/month",  
+  "£6.66/year"  
+];
+
+const pronounChoices = [
+  "he/him",
+  "she/her",
+  "they/them",
+  "he/them",
+  "she/then",
+];
+
+const platforms = [
+  "bluesky",
+  "myspace",
+  "x formerly twittah",
+  "mastodon",
+  "reddat",
+  "tiktok",
+  "linkedin",
+  "facebook",
+  "instant grandma",
+];
+
+function generateRandomAudio() {
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const duration = 10;
+  const sampleRate = audioContext.sampleRate;
+  const bufferSize = sampleRate * duration;
+  const audioBuffer = audioContext.createBuffer(1, bufferSize, sampleRate);
+  const channelData = audioBuffer.getChannelData(0);
+
+  let baseFrequency = Math.random() * 500 + 100; // Start at a random frequency
+  let baseAmplitude = Math.random() * 0.5 + 0.5; // Start at a random amplitude
+  
+  for (let i = 0; i < bufferSize; i++) {
+    // Smoothly slide frequency and amplitude
+    baseFrequency += (Math.random() * 10 - 5); // Slight random variation
+    baseAmplitude += (Math.random() * 0.1 - 0.05); // Slight amplitude variation
+    
+    // Clamp frequency and amplitude to reasonable ranges
+    baseFrequency = Math.max(20, Math.min(2000, baseFrequency));
+    baseAmplitude = Math.max(0, Math.min(1, baseAmplitude));
+    
+    // Generate saw wave
+    const t = i / sampleRate;
+    const sawWave = 2 * (baseFrequency * t - Math.floor(0.5 + baseFrequency * t)) - 1;
+    
+    // Apply amplitude
+    channelData[i] = sawWave * baseAmplitude;
+  }
+
+  return audioBuffer;
+}
+
+function getRandomFrom(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+async function generateProductName() {
+  const consonants = 'bcdfghjklmnpqrstvwxz';
+  const vowels = 'aeiou';
+  const length = Math.floor(Math.random() * 5) + 5;
+  let name = '';
+  for(let i = 0; i < length; i++) {
+    if(Math.random() > 0.5) {
+      name += consonants[Math.floor(Math.random() * consonants.length)].toUpperCase();
+    } else {
+      name += vowels[Math.floor(Math.random() * vowels.length)].toUpperCase();
+    }
+  }
+  return name;
+}
+
+async function getRandomImage() {
+  const width = 640;
+  const height = 480;
+  return `https://picsum.photos/${width}/${height}?random=${Math.random()}`;
+}
+
+async function generateVideo() {
+  const generateBtn = document.getElementById('generateBtn');
+  generateBtn.style.display = 'none';
+  
+  const status = document.getElementById('status');
+  const progressBar = document.getElementById('progressBar');
+  const videoPlayer = document.getElementById('videoPlayer');
+  videoPlayer.style.display = 'none';
+  
+  status.textContent = 'Generating video...';
+  progressBar.style.width = '0%';
+
+  const duration = 10;
+  const fps = 1;
+  const totalFrames = duration * fps;
+  const frames = [
+    { text: getRandomFrom(productAdjectives) },
+    { text: getRandomFrom(prices) },
+    { text: getRandomFrom(pronounChoices) },
+    { text: getRandomFrom(platforms) },
+    { text: await generateProductName() }
+  ];
+
+  for (let i = 0; i < frames.length; i++) {
+    status.textContent = `Fetching frame ${i + 1}/${totalFrames}...`;
+    progressBar.style.width = `${(i / totalFrames) * 50}%`;
+    frames[i].url = await getRandomImage();
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  status.textContent = 'Generating audio...';
+  progressBar.style.width = '75%';
+  
+  const randomAudioBuffer = generateRandomAudio();
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const audioSource = audioContext.createBufferSource();
+  audioSource.buffer = randomAudioBuffer;
+  
+  status.textContent = 'Creating video...';
+  progressBar.style.width = '90%';
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 640;
+  canvas.height = 480;
+  const ctx = canvas.getContext('2d');
+  
+  const videoStream = canvas.captureStream(fps);
+  
+  const chunks = [];
+  const mediaRecorder = new MediaRecorder(new MediaStream([
+    ...videoStream.getVideoTracks(),
+    audioContext.createMediaStreamDestination().stream.getAudioTracks()[0]
+  ]), {
+    mimeType: 'video/webm;codecs=vp8,opus'
+  });
+
+  mediaRecorder.ondataavailable = e => chunks.push(e.data);
+  mediaRecorder.onstop = async () => {
+    const blob = new Blob(chunks, { type: 'video/webm' });
+    videoPlayer.src = URL.createObjectURL(blob);
+    videoPlayer.style.display = 'block';
+    status.textContent = 'Video ready!';
+    progressBar.style.width = '100%';
+    generateBtn.style.display = 'block';
+  };
+
+  mediaRecorder.start();
+  audioSource.connect(audioContext.destination);
+  audioSource.start();
+
+  let frameIndex = 0;
+  const drawNextFrame = async () => {
+    if (frameIndex >= frames.length) {
+      mediaRecorder.stop();
+      return;
+    }
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+      ctx.fillRect(0, canvas.height/2 - 50, canvas.width, 100);
+      
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 48px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(frames[frameIndex].text, canvas.width/2, canvas.height/2);
+      
+      frameIndex++;
+      setTimeout(drawNextFrame, 1000 / fps);
+    };
+    img.src = frames[frameIndex].url;
+  };
+
+  drawNextFrame();
+}
+</script>
+</body></html>
